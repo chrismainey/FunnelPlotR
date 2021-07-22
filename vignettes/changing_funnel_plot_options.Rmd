@@ -44,7 +44,7 @@ medpar$prds<- predict(mod, newdata = medpar, type="response")
 # Draw plot, returning just the plot object
 funnel_plot(denominator=medpar$prds, numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE)
+            , draw_unadjusted = TRUE)
 
 ```
 
@@ -57,7 +57,7 @@ You can pick out data point(s) using the `highlight` option.  Here we we use the
 # Draw plot, returning just the plot object
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, highlight="030002")
+            , draw_unadjusted = TRUE, highlight="030002")
 ```
 
 
@@ -69,7 +69,7 @@ You can alter themes in the `funnelplotr` packages by using the theme argument. 
 
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, theme = funnel_grey() )
+            , draw_unadjusted = TRUE, theme = funnel_grey() )
 
 ```
 
@@ -88,7 +88,7 @@ new_funnel_theme <-
 
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, theme = new_funnel_theme)
+            , draw_unadjusted = TRUE, theme = new_funnel_theme)
 
 ```
 
@@ -102,7 +102,7 @@ Here I will change the upper 95% Poisson limit to black ("#000000"):
 ```{r colours}
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, theme = funnel_grey(),
+            , draw_unadjusted = TRUE, theme = funnel_grey(),
             plot_cols = c("#FF7F0EFF", "#000000", "#1F77B4FF","#1F77B4FF", "#9467BDFF", "#9467BDFF", "#2CA02CFF", "#2CA02CFF"))
 ```
 
@@ -114,7 +114,7 @@ funnel_plot(denominator=medpar$prds,numerator=medpar$los
 ## Changing labels
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, xrange=c(0, 400), yrange=c(0,2))
+            , draw_unadjusted = TRUE, xrange=c(0, 400), yrange=c(0,2))
 
 ```
 
@@ -127,7 +127,7 @@ You can change the plot labels and axis labels easily using the options: `title`
 ```{r funnellabels1}
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99 ,label = "outlier"
-            , Poisson_limits = TRUE, title = "Vignette funnel plot"
+            , draw_unadjusted = TRUE, title = "Vignette funnel plot"
             , x_label = "x-axis", y_label = "y-axis")
 ```
 
@@ -136,7 +136,7 @@ There are different labelling options for the data points too, using the `label`
 ```{r funnellabels2}
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99
-            , Poisson_limits = TRUE, title = "Vignette funnel plot"
+            , draw_unadjusted = TRUE, title = "Vignette funnel plot"
             , x_label = "x-axis", y_label = "y-axis"
             , highlight= "030002", label = "highlight")
 ```
@@ -150,7 +150,7 @@ Since `funnelplotr` uses `ggplot2`, you could always extract the plot and alter 
 fp <-
 funnel_plot(denominator=medpar$prds,numerator=medpar$los
             , group = medpar$provnum, limit=99, label = "outlier"
-            , Poisson_limits = TRUE)
+            , draw_unadjusted = TRUE)
 
 # Extract just the plot
 my_plot <- plot(fp)

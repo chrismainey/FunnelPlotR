@@ -141,7 +141,7 @@ and outliers labelled.
 ``` r
 a<-funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum, 
             title = 'Length of Stay Funnel plot for `medpar` data', data_type="SR", limit=99,
-            Poisson_limits = TRUE, OD_adjust = FALSE, label="outlier")
+            draw_unadjusted = TRUE, draw_adjusted = FALSE, label="outlier")
 print(a)
 ```
 
@@ -170,8 +170,8 @@ for this by inflating the limits:
 
 ``` r
 b<-funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum, data_type = "SR",
-            title = 'Length of Stay Funnel plot for `medpar` data', Poisson_limits = FALSE,
-            OD_adjust = TRUE, sr_method = "SHMI", label="outlier", limit=99)
+            title = 'Length of Stay Funnel plot for `medpar` data', draw_unadjusted = FALSE,
+            draw_adjusted = TRUE, sr_method = "SHMI", label="outlier", limit=99)
 
 print(b)
 ```

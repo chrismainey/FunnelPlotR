@@ -10,7 +10,7 @@ test_that("`funnel_plot()` works with input and returns expected list", {
   expect_length(a[[3]],22)
 
   b<-funnel_plot(numerator=c(100, 150,180,80,120, 225), denominator=c(108, 112, 165,95,100, 220),
-                 group=factor(c("a","b","c", "d","e","f")), OD_adjust = FALSE,
+                 group=factor(c("a","b","c", "d","e","f")), draw_adjusted = FALSE,
                  title="My test Funnel Plot", multiplier = 100, x_label = "Expected Values",
                  y_label = "Standardised Ratio Test", label = "outlier", limit=95)
   expect_type(b, "list")
@@ -22,7 +22,7 @@ test_that("`funnel_plot()` works with input and returns expected list", {
   expect_gt(b[[3]]$LCL95[5], a[[3]]$OD95LCL[5])
 
   c<-funnel_plot(numerator=c(100, 150,180,80,120, 225), denominator=c(108, 112, 165,95,100, 220),
-                 group=factor(c("a","b","c", "d","e","f")), OD_adjust = TRUE, sr_method="CQC", trim_by = 0.05,
+                 group=factor(c("a","b","c", "d","e","f")), draw_adjusted = TRUE, sr_method="CQC", trim_by = 0.05,
                  title="My test Funnel Plot", multiplier = 100, x_label = "Expected Values",
                  y_label = "Standardised Ratio Test", label = "highlight", limit=95, highlight="a")
   expect_type(c, "list")
@@ -35,7 +35,7 @@ test_that("`funnel_plot()` works with input and returns expected list", {
   expect_equal(source_data(c)$highlight[1],"1")
 
   d<-funnel_plot(numerator=c(100, 150,180,80,120, 225), denominator=c(108, 112, 165,95,100, 220),
-                 group=factor(c("a","b","c", "d","e","f")), OD_adjust = FALSE, sr_method="CQC", trim_by = 0.05,
+                 group=factor(c("a","b","c", "d","e","f")), draw_adjusted = FALSE, sr_method="CQC", trim_by = 0.05,
                  title="My test Funnel Plot", multiplier = 100, x_label = "Expected Values",
                  y_label = "Standardised Ratio Test", label = "both", limit=95, xrange=c(5,250)
                  , yrange=c(0, 200), highlight="a")

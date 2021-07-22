@@ -22,8 +22,8 @@
 #' \item{\code{NA}}{ - No labels applied}
 #' }
 #' @param highlight Single or vector of points to highlight, with a different colour and point style. Should correspond to values specified to `group`. Default is NA, for no highlighting.
-#' @param Poisson_limits Draw exact Poisson limits, without overdispersion adjustment. (default=FALSE)
-#' @param OD_adjust Draw overdispersed limits using hierarchical model, assuming at group level, as described in Spiegelhalter (2012).
+#' @param draw_unadjusted Draw control limits without overdispersion adjustment. (default=FALSE)
+#' @param draw_adjusted Draw overdispersed limits using hierarchical model, assuming at group level, as described in Spiegelhalter (2012).
 #' It calculates a second variance component ' for the 'between' standard deviation (\eqn{\tau}), that is added to the 'within' standard deviation (sigma) (default=TRUE)
 #' @param sr_method Method for adjustment when using indirectly standardised ratios (type="SR") Either "CQC" or "SHMI" (default). There are a few methods for standardisation.  "CQC"/Spiegelhalter
 #' uses a square-root transformation and Winsorises (rescales the outer most values to a particular percentile).
@@ -50,15 +50,15 @@
 #' \item{outlier}{A data frame of outliers from the data.}
 #' \item{tau2}{The between-groups standard deviation, \eqn{\tau^2}.}
 #' \item{phi}{The dispersion ratio, \eqn{\phi}.}
-#' \item{OD_adjust}{Whether overdispersion-adjusted limits were used.}
-#' \item{Poisson_limits}{Whether unadjusted Poisson limits were used.}
+#' \item{draw_adjusted}{Whether overdispersion-adjusted limits were used.}
+#' \item{draw_unadjusted}{Whether unadjusted Poisson limits were used.}
 #'
 #' @export
 #' @details
 #'    Outliers are marked based on the grouping, and the limits chosen, corresponding to either 95\% or 99.8\% quantiles of the normal distribution.\cr
 #'    Labels can attached using the `label` argument.\cr
-#'    Overdispersion can be factored in based on the methods in Spiegelhalter et al. (2012), set `OD_adjust` to FALSE to suppress this. \cr
-#'    To use Poisson limits set `Poisson_limits=TRUE`. \cr
+#'    Overdispersion can be factored in based on the methods in Spiegelhalter et al. (2012), set `draw_adjusted` to FALSE to suppress this. \cr
+#'    To use Poisson limits set `draw_unadjusted=TRUE`. \cr
 #'    The plot colours deliberately avoid red-amber-green colouring, but you could extract this from the ggplot object and change manually if you like.
 #'    Future versions of `funnelplotr` may allow users to change this.
 #'    
@@ -107,7 +107,7 @@
 
 
 funnel_plot <- function(numerator, denominator, group, data_type = "SR", limit = 99, label = "outlier",
-                            highlight = NA, Poisson_limits = FALSE, OD_adjust = TRUE, sr_method = "SHMI"
+                            highlight = NA, draw_unadjusted = FALSE, draw_adjusted = TRUE, sr_method = "SHMI"
                             , trim_by = 0.1, title="Untitled Funnel Plot", multiplier = 1, x_label = "Expected"
                             , y_label ,xrange = "auto", yrange = "auto"
                             , plot_cols = c("#FF7F0EFF", "#FF7F0EFF", "#1F77B4FF","#1F77B4FF", "#9467BDFF", "#9467BDFF", "#2CA02CFF", "#2CA02CFF")
@@ -187,17 +187,15 @@ funnel_plot <- function(numerator, denominator, group, data_type = "SR", limit =
       }
     }
   }
-  
 
-  
   
   # Define vector for scale colours
   plot_cols<-c(
     
-    "95% Lower Poisson" = plot_cols[1],
-    "95% Upper Poisson" = plot_cols[2],
-    "99.8% Lower Poisson" = plot_cols[3],
-    "99.8% Upper Poisson" = plot_cols[4],
+    "95% Lower" = plot_cols[1],
+    "95% Upper" = plot_cols[2],
+    "99.8% Lower" = plot_cols[3],
+    "99.8% Upper" = plot_cols[4],
     "95% Lower Overdispersed" = plot_cols[5],
     "95% Upper Overdispersed" = plot_cols[6],
     "99.8% Lower Overdispersed" = plot_cols[7],
@@ -240,19 +238,12 @@ funnel_plot <- function(numerator, denominator, group, data_type = "SR", limit =
   tau2 <- tau_func(n=n,  phi=phi, S=mod_plot_agg[!is.na(mod_plot_agg$Wuzscore),]$s)
   
   
-  if(OD_adjust == FALSE){
+  if(draw_adjusted == FALSE){
     phi<-as.numeric(0)
     tau2<-as.numeric(0)
+    draw_unadjusted <- TRUE
   }
-  
-  # Poisson limits
-  mod_plot_agg <- poisson_limits(mod_plot_agg, multiplier=multiplier, target=target)
-  
 
-  # OD limits
-  mod_plot_agg <- OD_limits(mod_plot_agg=mod_plot_agg, data_type = data_type, sr_method = sr_method
-                            , multiplier = multiplier, tau2 = tau2, target=target)
-  
   # Set limits
   # Determine the range of plots
   if(xrange[1] == "auto"){
@@ -273,34 +264,51 @@ funnel_plot <- function(numerator, denominator, group, data_type = "SR", limit =
   }
   
   ### Calculate funnel limits ####
-  if (OD_adjust == FALSE) {
-    Poisson_limits <- TRUE
-    message("OD_adjust set to FALSE, plotting using Poisson limits")
+  if (draw_adjusted == FALSE) {
+    message("draw_adjusted set to FALSE, plotting using unadjusted limits")
   }
   
-  if (OD_adjust == TRUE & tau2 == 0) {
-    OD_adjust <- FALSE
-    Poisson_limits <- TRUE
-    
-    message("No overdispersion detected, or OD_adjust to FALSE, plotting using Poisson limits")
-    
+  if (draw_adjusted == TRUE & tau2 == 0) {
+    draw_adjusted <- FALSE
+    message("No overdispersion detected, or draw_adjusted to FALSE, plotting using unadjusted limits")
+    draw_unadjusted <- TRUE
   }
-  
+
+  # Calculate both adjusted and unadjusted control limits. This calculates limits for
+  #   for both a range of denominators for plotting as well as the denominators present
+  #   in the data
   plot_limits<-build_limits_lookup(min_x=min_x, max_x=max_x, min_y=min_y, max_y=max_y, 
-                              Poisson_limits=Poisson_limits, OD_adjust=OD_adjust, tau2=tau2, 
-                              data_type=data_type, sr_method=sr_method, target=target, 
-                              multiplier=multiplier)
+                                    denominators = mod_plot_agg$denominator,
+                                    draw_adjusted=draw_adjusted, tau2=tau2, 
+                                    data_type=data_type, sr_method=sr_method, target=target, 
+                                    multiplier=multiplier)
+  
+  # Extract the control limits corresponding to the denominators present in the
+  #   data. This drops the standard error 's' already present in mod_plot_agg
+  mod_plot_agg <- merge(mod_plot_agg[,-grep("\\bs\\b",colnames(mod_plot_agg))],
+                        plot_limits, by.x="denominator", by.y="number.seq")
+  
+  # Arrange rows by group
+  mod_plot_agg <- mod_plot_agg[order(mod_plot_agg$group),]
+  
+  # Create named vector mapping the needed changes in variable names
+  new_names = c("odll95"="OD95LCL", "odul95"="OD95UCL", "odll998"="OD99LCL",
+                "odul998"="OD99UCL", "ll95"="LCL95", "ul95"="UCL95",
+                "ll998"="LCL99", "ul998"="UCL99")
+  
+  # Rename aggregate data control limits
+  names(mod_plot_agg) <- ifelse(is.na(new_names[names(mod_plot_agg)]), names(mod_plot_agg), new_names[names(mod_plot_agg)])             
   
   # Add a colouring variable 
   mod_plot_agg$highlight <- as.character(as.numeric(mod_plot_agg$group %in% highlight))
   
   # Add outliers flag
-  mod_plot_agg <- outliers_func(mod_plot_agg, OD_adjust, Poisson_limits, limit, multiplier)
+  mod_plot_agg <- outliers_func(mod_plot_agg, draw_adjusted, limit, multiplier)
   
   # Assemble plot
   fun_plot<-draw_plot(mod_plot_agg, limits=plot_limits, x_label, y_label, title, label,
                       multiplier=multiplier,  
-                      Poisson_limits=Poisson_limits, OD_adjust=OD_adjust,
+                      draw_unadjusted=draw_unadjusted, draw_adjusted=draw_adjusted,
                       target=target, min_y, max_y, min_x, max_x, data_type=data_type,
                       sr_method = sr_method, theme = theme, plot_cols=plot_cols)
   
@@ -310,7 +318,7 @@ funnel_plot <- function(numerator, denominator, group, data_type = "SR", limit =
   
   #Build return
   rtn<- new_funnel_plot(list(plot=fun_plot, limits_lookup=plot_limits, aggregated_data=mod_plot_agg
-                             , phi=phi, tau2=tau2, OD_adjust=OD_adjust, Poisson_limits=Poisson_limits
+                             , phi=phi, tau2=tau2, draw_adjusted=draw_adjusted, draw_unadjusted=draw_unadjusted
                              , outliers_data=outliers_df))
   
   validate_funnel_plot(rtn)

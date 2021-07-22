@@ -12,8 +12,8 @@ draw_plot(
   title,
   label,
   multiplier,
-  Poisson_limits,
-  OD_adjust,
+  draw_unadjusted,
+  draw_adjusted,
   target,
   min_y,
   max_y,
@@ -40,9 +40,9 @@ draw_plot(
 
 \item{multiplier}{Scale relative risk and funnel by this factor. Default to 1, but 100 is used for HSMR}
 
-\item{Poisson_limits}{Draw exact limits based only on data points with no iterpolation. (default=FALSE)}
+\item{draw_unadjusted}{Draw exact limits based only on data points with no iterpolation. (default=FALSE)}
 
-\item{OD_adjust}{Draw overdispersed limits using Spiegelhalter's (2012) tau2 (default=TRUE)}
+\item{draw_adjusted}{Draw overdispersed limits using Spiegelhalter's (2012) tau2 (default=TRUE)}
 
 \item{target}{the calculated target value for the data type}
 

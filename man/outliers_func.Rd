@@ -4,14 +4,12 @@
 \alias{outliers_func}
 \title{Label outliers}
 \usage{
-outliers_func(mod_plot_agg, OD_adjust, Poisson_limits, limit, multiplier)
+outliers_func(mod_plot_agg, draw_adjusted, limit, multiplier)
 }
 \arguments{
 \item{mod_plot_agg}{Aggregated data set for plotting}
 
-\item{OD_adjust}{Logical for drawing OD limits, takes precedence over Poisson for outliers}
-
-\item{Poisson_limits}{Logical for drawing Poisson limits}
+\item{draw_adjusted}{Logical for drawing OD limits, takes precedence over Poisson for outliers}
 
 \item{limit}{which limit to use.  Currently 95 or 99.}
 

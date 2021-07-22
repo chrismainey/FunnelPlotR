@@ -9,21 +9,19 @@ build_limits_lookup(
   max_x,
   min_y,
   max_y,
-  Poisson_limits,
-  OD_adjust,
+  draw_adjusted,
   tau2,
   data_type,
   sr_method,
   target,
-  multiplier
+  multiplier,
+  denominators
 )
 }
 \arguments{
-\item{Poisson_limits}{TRUE/FALSE Draw Poisson distribution limits?}
+\item{draw_adjusted}{TRUE/FALSE Use overdispersion adjustment}
 
-\item{OD_adjust}{TRUE/FALSE Use overdispersion adjustment}
-
-\item{tau2}{If using OD_adjust, what is the tau2 ("between" standard error) to use?}
+\item{tau2}{If using draw_adjusted, what is the tau2 ("between" standard error) to use?}
 
 \item{data_type}{SR, PR or RC. Used to set target reference}
 
@@ -40,6 +38,8 @@ build_limits_lookup(
 \item{min_ratio}{Minimum ratio value for range of y-axis}
 
 \item{max_ratio}{Maximum ratio value for range of y-axis}
+
+\item{draw_unadjusted}{TRUE/FALSE Draw Poisson distribution limits?}
 }
 \value{
 A data.frame with an index column and various control limits based on the index as an x-axis value.
